@@ -8,6 +8,8 @@ As a part of this release, this repository was extracted from the main
 ### Changed
 
 * Default branch to **main** ([#544](https://github.com/stac-utils/stac-fastapi/pull/544))
+* derived_from link storage in item table
+* collections.description field modified from varchar(1024) to Text CLOB
 
 ### Fixed
 
