@@ -9,6 +9,7 @@ from pystac.utils import datetime_to_str
 from stac_fastapi.types import stac as stac_types
 from stac_fastapi.types.config import Settings
 from stac_fastapi.types.links import CollectionLinks, ItemLinks, resolve_links
+from stac_fastapi.types.links import filter_links
 from stac_fastapi.types.rfc3339 import now_to_rfc3339_str, rfc3339_str_to_datetime
 
 from stac_fastapi.sqlalchemy.models import database
@@ -119,6 +120,16 @@ class ItemSerializer(Serializer):
         if geometry is not None:
             geometry = json.dumps(geometry)
 
+
+        # Get all non infered links from input
+        temp_links = filter_links(stac_data['links'])
+        # Assign derived_from link
+        derived_from = None
+        for temp_link in temp_links:
+            if temp_link['rel'] == 'derived_from':
+                derived_from = [temp_link]
+                break
+
         return database.Item(
             id=stac_data["id"],
             collection_id=stac_data["collection"],
@@ -128,6 +139,7 @@ class ItemSerializer(Serializer):
             bbox=stac_data.get("bbox"),
             properties=stac_data["properties"],
             assets=stac_data["assets"],
+            links=derived_from
             **indexed_fields,
         )
 
