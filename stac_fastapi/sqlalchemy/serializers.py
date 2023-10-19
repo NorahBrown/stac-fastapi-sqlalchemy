@@ -139,7 +139,7 @@ class ItemSerializer(Serializer):
             bbox=stac_data.get("bbox"),
             properties=stac_data["properties"],
             assets=stac_data["assets"],
-            links=derived_from
+            links=derived_from,
             **indexed_fields,
         )
 
