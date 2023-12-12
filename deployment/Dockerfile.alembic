@@ -40,4 +40,4 @@ RUN cd /asset && zip -r ../stac-fastapi-alembic-initdb-lambda-code.zip .
 # docker build -t stac-alembic -f C:\Users\jgu\desktop\stac-fastapi-sqlalchemy\deployment\Dockerfile.alembic .
 # docker create --name alembic stac-alembic
 # docker cp alembic:.\stac-fastapi-alembic-initdb-lambda-code.zip .
-# aws s3 cp stac-fastapi-2.4.5-venv.tar.gz s3://fgp-datacube-$ENV-templates/aws-datacube/lambda-marlin/stac-fastapi-alembic-initdb-lambda-code.zip  
+# aws s3 cp stac-fastapi-alembic-initdb-lambda-code.zip s3://fgp-datacube-$ENV-templates/aws-datacube/lambda-marlin/  

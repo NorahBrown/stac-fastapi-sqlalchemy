@@ -132,3 +132,10 @@ venv
 
 # IDE
 .vscode
+
+# generated packages
+stac-fastapi-2.4.5-venv.tar.gz
+stac-fastapi-alembic-initdb-lambda-code.zip
+
+# certificate
+NRCAN-Root-2019-B64.cer
