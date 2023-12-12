@@ -1,0 +1,43 @@
+ARG PYTHON_VERSION=3.9
+FROM --platform=linux/amd64 public.ecr.aws/lambda/python:${PYTHON_VERSION}
+
+ARG STAC_FASTAPI_VERSION=2.4.5
+WORKDIR /tmp
+
+# Ensure this will work within the NRCan network
+RUN update-ca-trust force-enable
+COPY NRCAN-Root-2019-B64.cer /etc/pki/ca-trust/source/anchors/
+RUN update-ca-trust extract
+
+# Install the required utility tools
+RUN yum -y install zip unzip wget
+
+# Install the package depedencies
+RUN pip install pip -U
+RUN pip install --target /asset "stac-fastapi.types==$STAC_FASTAPI_VERSION" "stac-fastapi.api==$STAC_FASTAPI_VERSION" "stac-fastapi.extensions==$STAC_FASTAPI_VERSION" "stac_fastapi.sqlalchemy==$STAC_FASTAPI_VERSION" 
+COPY stac_fastapi/sqlalchemy/serializers.py /asset/stac_fastapi/sqlalchemy/serializers.py
+COPY alembic/versions/6a37bc5b3b65_change_collection_description_column_.py /asset/alembic/versions/6a37bc5b3b65_change_collection_description_column_.py
+
+# Reduce package size and remove useless files
+RUN cd /asset && find . -type f -name '*.pyc' ! -path "./alembic/versions/*" | while read f; do n=$(echo $f | sed 's/__pycache__\///' | sed 's/.cpython-[2-3][0-9]//' | sed 's/.cpython-[2-3][0-9][0-9]//'); cp $f $n; done;
+RUN cd /asset && find . -type d -name '__pycache__' -print0 | xargs -0 rm -rf
+RUN cd /asset && find . -type f -name '*.py' ! -path "./alembic/versions/*" -print0 | xargs -0 rm -f
+RUN find /asset -type d -name 'tests' -print0 | xargs -0 rm -rf
+RUN rm -Rf /asset/bin
+
+# Get alembic configuration from the git project
+COPY alembic.ini /asset/
+COPY alembic/env.py /asset/alembic/env.py
+
+# Create the lambda function
+COPY deployment/lambda_function.py /asset/lambda_function.py
+
+# Create the lambda archive
+RUN cd /asset && zip -r ../stac-fastapi-alembic-initdb-lambda-code.zip .
+
+
+#### run in terminal
+# docker build -t stac-alembic -f C:\Users\jgu\desktop\stac-fastapi-sqlalchemy\deployment\Dockerfile.alembic .
+# docker create --name alembic stac-alembic
+# docker cp alembic:.\stac-fastapi-alembic-initdb-lambda-code.zip .
+# aws s3 cp stac-fastapi-2.4.5-venv.tar.gz s3://fgp-datacube-$ENV-templates/aws-datacube/lambda-marlin/stac-fastapi-alembic-initdb-lambda-code.zip  
