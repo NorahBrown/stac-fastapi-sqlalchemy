@@ -9,7 +9,7 @@ stages:
 
 # ref: https://stackoverflow.com/questions/62165333/gitlab-ci-setting-a-variable-within-another-variable
 variables:
-  VERSION: 2.4.5
+  VERSION: 2.4.5.1
   DC_APP: stac-fastapi
 
 include:
