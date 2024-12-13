@@ -35,9 +35,9 @@ make-sqlalchemy-tarball:
     - py3clean /var/venv/$DC_APP
     - pip uninstall -y pip
     - ls "/var/venv/$DC_APP"
-    - cp stac_fastapi/sqlalchemy/serializers.py /var/venv/$DC_APP/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/serializers.py
-    - cp stac_fastapi/sqlalchemy/app.py /var/venv/$DC_APP/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/app.py
-    - cp alembic/versions/6a37bc5b3b65_change_collection_description_column_.py /var/venv/$DC_APP/lib/python3.10/site-packages/alembic/versions/
+    - cp ./stac_fastapi/sqlalchemy/serializers.py /var/venv/$DC_APP/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/serializers.py
+    - cp ./stac_fastapi/sqlalchemy/app.py /var/venv/$DC_APP/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/app.py
+    - cp ./alembic/versions/6a37bc5b3b65_change_collection_description_column_.py /var/venv/$DC_APP/lib/python3.10/site-packages/alembic/versions/
     - tar -pczf $CI_PROJECT_DIR/$TARBALL /var/venv/$DC_APP/
     - ls $CI_PROJECT_DIR
   when: manual
