@@ -54,6 +54,7 @@ RUN pip uninstall -y pip
 
 # copy updated files from host to venv
 COPY stac_fastapi/sqlalchemy/serializers.py /var/venv/$APPNAME/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/serializers.py
+COPY stac_fastapi/sqlalchemy/app.py /var/venv/$APPNAME/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/app.py
 COPY alembic/versions/6a37bc5b3b65_change_collection_description_column_.py /var/venv/$APPNAME/lib/python3.10/site-packages/alembic/versions/6a37bc5b3b65_change_collection_description_column_.py
 
 # create tar ball
