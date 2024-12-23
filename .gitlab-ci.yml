@@ -7,10 +7,16 @@ stages:
   - deploy
   - update
 
+workflow:
+  # Never run pipeline from merge request
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+
 # ref: https://stackoverflow.com/questions/62165333/gitlab-ci-setting-a-variable-within-another-variable
 variables:
-  VERSION: 2.4.5.1
+  VERSION: 2.4.5
   DC_APP: stac-fastapi
+  TARBALL: $DC_APP-$VERSION-venv.tar.gz
 
 include:
   - project: "Datacube/sop/ci-configs"
@@ -20,45 +26,50 @@ include:
       - "stages/set-env-vars/set-env-vars.yml" # Sets AWS credentials to .env for sharing with other jobs.
       - "stages/deploy/deploy-refresh-ec2.yml"
 
-  - project: "Datacube/sop/ci-configs"
-    ref: main # git branch (can be a specific branch, a tag or a commit #)
-    file: stages/build/build-tarball-template.yml
-    inputs:
-      appname: sqlalchemy
-
-make-sqlalchemy-tarball:
-  variables:
-    TARBALL: $DC_APP-$VERSION-venv.tar.gz
+make-tarball:
+  image: ghcr.io/osgeo/gdal:ubuntu-small-3.8.4
+  stage: build
+  tags:
+    - CICD
   script:
-    - cd /var/venv && find . -type f -name '*.pyc' | while read f; do n=$(echo $f | sed 's/__pycache__\///' | sed 's/.cpython-[0-9]*//'); cp $f $n; done;
-    - cd /var/venv && find . -type d -a -name '__pycache__' -print0 | xargs -0 rm -rf
+    - apt-get update
+    - apt-get install -y python3 python3-pip python3.10-venv
+
+    - python3 -m venv /var/venv/$DC_APP
+
+    # Set the venv bin at the top of the path to ensure install in venv
+    - export PATH=/var/venv/$DC_APP/bin:$PATH
+
+    # Do not run pip upgrade, older versions of pip wont throw errors
+    # Install the application into the venv
+    - pip install ".[server]"
+
+    # Clean up the venv
     - py3clean /var/venv/$DC_APP
     - pip uninstall -y pip
     - ls "/var/venv/$DC_APP"
-    - cp $CI_PROJECT_DIR/stac_fastapi/sqlalchemy/serializers.py /var/venv/$DC_APP/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/serializers.py
-    - cp $CI_PROJECT_DIR/stac_fastapi/sqlalchemy/app.py /var/venv/$DC_APP/lib/python3.10/site-packages/stac_fastapi/sqlalchemy/app.py
-    - cp $CI_PROJECT_DIR/alembic/versions/6a37bc5b3b65_change_collection_description_column_.py /var/venv/$DC_APP/lib/python3.10/site-packages/alembic/versions/
+    - ls "/var/venv/$DC_APP/bin"
+    - ls "/var/venv/$DC_APP/bin/stac-fastapi-sqlalchemy"
+    # Want the pathing to match pathing in CF, for stac-fastapi the untar has no added pathing.
     - tar -pczf $CI_PROJECT_DIR/$TARBALL /var/venv/$DC_APP/
-    - ls $CI_PROJECT_DIR
-  when: manual
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/$TARBALL
+    expire_in: 1 hour
 
-deploy-sqlalchemy-tarball:
+deploy-tarball:
+  image: python:3.10-buster
   stage: deploy
-  needs:
-    - set-aws-credentials
-    - make-sqlalchemy-tarball
+  needs: ["set-aws-credentials", "make-tarball"]
   tags:
     - CICD
-  variables:
-    TARBALL: $DC_APP-$VERSION-venv.tar.gz
   before_script:
-    - !reference [".predefined-script", "update-os"]
-    - !reference [".predefined-script", "upgrade-pip"]
-    - !reference [".predefined-script", "set-job-aws-credentials"]
     - !reference [".predefined-script", "install-awscli"]
+    - !reference [".predefined-script", "set-job-aws-credentials"]
   script:
-    - echo COPY $ENV
     - aws s3 cp $TARBALL s3://fgp-datacube-$ENV-templates/datacube-apps/server-app/stac-api/
+    - echo "$TARBALL copied to $ENV s3://fgp-datacube-$ENV-templates/datacube-apps/server-app/stac-api/"
+
   when: manual
 
 # Refresh ec2 instances only when needed

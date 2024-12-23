@@ -7,11 +7,11 @@ with open("README.md") as f:
 
 install_requires = [
     "attrs",
-    "pydantic[dotenv]",
+    "pydantic[dotenv]<2",
     "stac_pydantic>=2.0.3",
-    "stac-fastapi.types",
-    "stac-fastapi.api",
-    "stac-fastapi.extensions",
+    "stac-fastapi.types==2.4.9",
+    "stac-fastapi.api==2.4.9",
+    "stac-fastapi.extensions==2.4.9",
     "sqlakeyset",
     "geoalchemy2<0.14.0",
     "sqlalchemy==1.3.23",
