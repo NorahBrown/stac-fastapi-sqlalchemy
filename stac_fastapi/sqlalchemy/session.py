@@ -1,4 +1,5 @@
 """database session management."""
+
 import logging
 import os
 from contextlib import contextmanager
@@ -7,15 +8,20 @@ from typing import Iterator
 import attr
 import psycopg2
 import sqlalchemy as sa
-from fastapi_utils.session import FastAPISessionMaker as _FastAPISessionMaker
 from sqlalchemy.orm import Session as SqlSession
 from stac_fastapi.types import errors
 
+from stac_fastapi.sqlalchemy.session_pool import (
+    FastAPISessionMaker as _FastAPISessionMaker,
+)
+
 from stac_fastapi.sqlalchemy.config import SqlalchemySettings
+
 
 logger = logging.getLogger(__name__)
 
 
+# Use customised stac-fastapi utilities session maker
 class FastAPISessionMaker(_FastAPISessionMaker):
     """FastAPISessionMaker."""
 

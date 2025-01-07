@@ -1,6 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+## Changed
+* Created stac-fastapi-sqlalchemy session_pool.py, inherits fastapi-utilities FastAPISessionMaker with pool parameters passed to get_engine (internal datacube issue #2)
+## Added
+* tests/datacube/jmeter basic load tests (internal datacube issue #2)
+
+## [2.4.5 - internal datacube version]
 
 As a part of this release, this repository was extracted from the main
 [stac-fastapi](https://github.com/stac-utils/stac-fastapi) repository.
@@ -8,8 +14,9 @@ As a part of this release, this repository was extracted from the main
 ### Changed
 
 * Default branch to **main** ([#544](https://github.com/stac-utils/stac-fastapi/pull/544))
-* derived_from link storage in item table
-* collections.description field modified from varchar(1024) to Text CLOB
+* derived_from link storage in item table (internal datacube issue)
+* collections.description field modified from varchar(1024) to Text CLOB (internal datacube issue)
+* datacube-version branch is main branch in internal gitlab repo (internal datacube issue)
 
 ### Fixed
 

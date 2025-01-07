@@ -5,6 +5,8 @@ from setuptools import find_namespace_packages, setup
 with open("README.md") as f:
     desc = f.read()
 
+# TODO Datacube upgrade of code base required see https://git.geoproc.geogc.ca/datacube/aws-deploy/forks/stac-fastapi-sqlalchemy/-/issues/5
+
 install_requires = [
     "attrs",
     "pydantic[dotenv]<2",
@@ -18,7 +20,7 @@ install_requires = [
     "shapely",
     "psycopg2-binary",
     "alembic",
-    "fastapi-utils",
+    "fastapi-utils==0.8.0",  # Hardcode by datacube, has dependency on sqlalchemy 2 which is overwritten by sqlalchemy=1.3.23 requirement above
 ]
 
 extra_reqs = {

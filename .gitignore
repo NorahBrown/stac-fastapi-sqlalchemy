@@ -140,3 +140,7 @@ stac-fastapi-alembic-initdb-lambda-code.zip
 
 # certificate
 NRCAN-Root-2019-B64.cer
+
+# datacube-dev requirements
+datacube-dev/requirements.txt
+nrcan-ssl*
