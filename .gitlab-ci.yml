@@ -30,7 +30,7 @@ make-tarball:
   image: ghcr.io/osgeo/gdal:ubuntu-small-3.8.4
   stage: build
   tags:
-    - CICD
+    - runner-v2
   script:
     - apt-get update
     - apt-get install -y python3 python3-pip python3.10-venv
@@ -63,7 +63,7 @@ deploy-tarball:
   stage: deploy
   needs: ["set-aws-credentials", "make-tarball"]
   tags:
-    - CICD
+    - runner-v2
   before_script:
     - !reference [".predefined-script", "install-awscli"]
     - !reference [".predefined-script", "set-job-aws-credentials"]
